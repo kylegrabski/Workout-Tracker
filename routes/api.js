@@ -5,7 +5,16 @@ const Workout = require("../models/workout");
 // get all workouts
 router.get("/api/workouts", (req, res) => {
   console.log(" GET /api/workouts HIT HERE");
-  Workout.find({})
+  // Workout.find({})
+  Workout.aggregate([
+    {
+      $addFields: {
+        totalDuration: {
+          $sum: "$exercises.duration",
+        },
+      },
+    },
+  ])
     // .populate("exercises")
     .then((workoutdb) => {
       res.json(workoutdb);
@@ -62,6 +71,16 @@ router.post("/api/workouts", ({ body }, res) => {
 });
 
 //GET WORKOUT /api/workouts/range
-router.get("/api/workouts/range", (req, res) => {});
+router.get("/api/workouts/range", (req, res) => {
+  Workout.find({})
+  .sort({'day': -1})
+  .limit(7)
+  .then((workoutdb) => {
+    res.json(workoutdb);
+  })
+  .catch((err) => {
+    res.json(err);
+  });
+});
 
 module.exports = router;
